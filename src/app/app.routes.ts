@@ -13,13 +13,13 @@ export const routes: Routes = [
     path: 'cars',
     component: CarList
   },
-{
-    path: 'cars/:id',
-    component: CarDetails
-  },
   {
     path: 'cars/new',
     component: CarForm
+  },
+  {
+    path: 'cars/:id',
+    component: CarDetails
   },
   
   
