@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Car } from '../models/car.model';
+import { Car, CreateCarDto } from '../models/car.model';
 import { catchError, Observable, throwError } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
@@ -20,12 +20,13 @@ private apiUrl = 'http://localhost:400/api/v1/cars'; // this should be read from
     return this.http.get<Car>(`${this.apiUrl}/${id}`);
   }
 
-  addCar(car: Car): Observable<Car> {
+   addCar(car: CreateCarDto): Observable<Car> {
     return this.http.post<Car>(this.apiUrl, car)
     .pipe(
       catchError(this.handleError)
     )
   }
+
 
   
   private handleError(error: HttpErrorResponse) {
