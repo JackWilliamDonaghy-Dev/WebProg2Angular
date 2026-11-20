@@ -1,35 +1,57 @@
-<form [formGroup]="carForm" (ngSubmit)="onSubmit()" class="car-form">
-  <h2>Add a car</h2>
-
-  <div class="form-group">
-    <label for="make">Make</label>
-    <input id="make" type="text" formControlName="make" placeholder="e.g. Toyota" />
-    @if (carForm.controls.make.touched && carForm.controls.make.hasError('required')) {
-      <p>Make is required.</p>
-    }
-  </div>
-
-  <div class="form-group">
-    <label for="model">Model</label>
-    <input id="model" type="text" formControlName="model" placeholder="e.g. Corolla" />
-    @if (carForm.controls.model.touched && carForm.controls.model.hasError('required')) {
-      <p>Model is required.</p>
-    }
-  </div>
-
-  <div class="form-group">
-    <label for="year">Year (optional)</label>
-    <input id="year" type="number" formControlName="year" placeholder="e.g. 2022" />
-  </div>
-
-  @if (saveError(); as message) {
-    <p role="alert">{{ message }}</p>
+<mat-card class="car-card">
+  @if (saving()) {
+    <mat-progress-bar mode="indeterminate" aria-label="Saving car" />
   }
 
-  <div class="button-group">
-    <button type="submit" [disabled]="saving()">
-      {{ saving() ? 'Saving...' : 'Save car' }}
-    </button>
-    <a routerLink="/cars">Cancel</a>
-  </div>
-</form>
+  <mat-card-header>
+    <mat-card-title>Add a car</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form [formGroup]="carForm" (ngSubmit)="onSubmit()" class="car-form">
+      <mat-form-field appearance="outline">
+        <mat-label>Make</mat-label>
+        <input matInput formControlName="make" placeholder="e.g. Toyota" />
+        @if (carForm.controls.make.hasError('required')) {
+          <mat-error>Make is required.</mat-error>
+        } @else if (carForm.controls.make.hasError('minlength')) {
+          <mat-error>Make must be at least 2 characters.</mat-error>
+        } @else if (carForm.controls.make.hasError('maxlength')) {
+          <mat-error>Make must be 30 characters or fewer.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Model</mat-label>
+        <input matInput formControlName="model" placeholder="e.g. Corolla" />
+        @if (carForm.controls.model.hasError('required')) {
+          <mat-error>Model is required.</mat-error>
+        } @else if (carForm.controls.model.hasError('maxlength')) {
+          <mat-error>Model must be 30 characters or fewer.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Year</mat-label>
+        <input matInput type="number" formControlName="year" placeholder="e.g. 2022" />
+        <mat-hint>Optional</mat-hint>
+        @if (carForm.controls.year.hasError('min')) {
+          <mat-error>Year must be 1950 or later.</mat-error>
+        } @else if (carForm.controls.year.hasError('max')) {
+          <mat-error>Year must be {{ maxYear }} or earlier.</mat-error>
+        }
+      </mat-form-field>
+
+      @if (saveError(); as message) {
+        <p role="alert">{{ message }}</p>
+      }
+
+      <div class="button-group">
+        <button matButton="filled" type="submit" [disabled]="saving()">
+          {{ saving() ? 'Saving...' : 'Save car' }}
+        </button>
+        <a matButton routerLink="/cars">Cancel</a>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

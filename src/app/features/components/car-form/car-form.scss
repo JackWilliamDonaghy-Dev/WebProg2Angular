@@ -1,0 +1,22 @@
+.car-card {
+  max-width: 32rem;
+  margin: 1rem auto;
+  overflow: hidden;
+}
+
+.car-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.button-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
