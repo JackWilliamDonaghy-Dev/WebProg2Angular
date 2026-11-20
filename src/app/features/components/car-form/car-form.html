@@ -4,16 +4,24 @@
   }
 
   <mat-card-header>
-    <mat-card-title>Add a car</mat-card-title>
+    <mat-card-title>{{ id() ? 'Edit car' : 'Add a car' }}</mat-card-title>
   </mat-card-header>
 
   <mat-card-content>
+    @if (loading()) {
+      <p role="status">Loading car...</p>
+    }
+    @if (loadError(); as message) {
+      <p role="alert">{{ message }}</p>
+    }
     <form [formGroup]="carForm" (ngSubmit)="onSubmit()" class="car-form">
       <mat-form-field appearance="outline">
         <mat-label>Make</mat-label>
         <input matInput formControlName="make" placeholder="e.g. Toyota" />
         @if (carForm.controls.make.hasError('required')) {
           <mat-error>Make is required.</mat-error>
+        } @else if (carForm.controls.make.hasError('blank')) {
+        <mat-error>Make cannot be only spaces.</mat-error>
         } @else if (carForm.controls.make.hasError('minlength')) {
           <mat-error>Make must be at least 2 characters.</mat-error>
         } @else if (carForm.controls.make.hasError('maxlength')) {
@@ -26,6 +34,8 @@
         <input matInput formControlName="model" placeholder="e.g. Corolla" />
         @if (carForm.controls.model.hasError('required')) {
           <mat-error>Model is required.</mat-error>
+        } @else if (carForm.controls.model.hasError('blank')) {
+          <mat-error>Model cannot be only spaces.</mat-error>
         } @else if (carForm.controls.model.hasError('maxlength')) {
           <mat-error>Model must be 30 characters or fewer.</mat-error>
         }
@@ -47,10 +57,10 @@
       }
 
       <div class="button-group">
-        <button matButton="filled" type="submit" [disabled]="saving()">
+        <button matButton="filled" type="submit" [disabled]="saving() || loading() || !!loadError()">
           {{ saving() ? 'Saving...' : 'Save car' }}
         </button>
-        <a matButton routerLink="/cars">Cancel</a>
+        <a matButton [routerLink]="id() ? ['/cars', id()] : ['/cars']">Cancel</a>
       </div>
     </form>
   </mat-card-content>
