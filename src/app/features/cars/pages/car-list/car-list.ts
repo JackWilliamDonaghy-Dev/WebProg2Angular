@@ -1,25 +1,20 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
-import { Car } from '../../models/car.model';
-import { CarService } from '../../services/car.service';
-import { AsyncPipe} from '@angular/common';
-import { CarCard } from '../../components/car-card/car-card';
+import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 
+import { withLoadState } from '../../../../shared/load-state';
+import { CarCard } from '../../components/car-card/car-card';
+import { CarService } from '../../services/car.service';
 
 @Component({
   selector: 'app-car-list',
-  imports: [AsyncPipe, CarCard],
+  imports: [CarCard],
   templateUrl: './car-list.html',
   styleUrl: './car-list.scss',
 })
-export class CarList implements OnInit {
+export class CarList {
+  private readonly carService = inject(CarService);
 
-private carService = inject(CarService);
-  
-  cars$!: Observable<Car[]>;
-
-  ngOnInit(): void {
-    this.cars$ = this.carService.getCars();
-  }
+  readonly state = toSignal(withLoadState(this.carService.getCars()), {
+    requireSync: true,
+  });
 }
-

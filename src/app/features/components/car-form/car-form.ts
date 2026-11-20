@@ -1,46 +1,56 @@
-import { Component, inject } from '@angular/core';
-import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Car, CreateCarDto } from '../../cars/models/car.model';
+import { Component, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+
+import { CreateCarDto } from '../../cars/models/car.model';
 import { CarService } from '../../cars/services/car.service';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-car-form',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './car-form.html',
   styleUrl: './car-form.scss',
 })
 export class CarForm {
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly carService = inject(CarService);
+  private readonly router = inject(Router);
 
-  private formBuilder = inject(FormBuilder);
-  private carService = inject(CarService);
-  private router = inject(Router);
+  readonly saving = signal(false);
+  readonly saveError = signal<string | null>(null);
 
-  carForm = this.formBuilder.nonNullable.group({
-     make: ['', Validators.required],
-     model: ['', Validators.required],
-     year: this.formBuilder.control<number|null> (null)
-   });
-
+  readonly carForm = this.formBuilder.nonNullable.group({
+    make: ['', Validators.required],
+    model: ['', Validators.required],
+    year: this.formBuilder.control<number | null>(null),
+  });
 
   onSubmit(): void {
+    if (this.saving()) return;
 
-  const { make, model, year } = this.carForm.getRawValue();
-  const newCar: CreateCarDto = { make, model, year: year ?? undefined };
-      
-      console.log('Submitted Car:', newCar);
+    this.saveError.set(null);
+    if (this.carForm.invalid) {
+      this.carForm.markAllAsTouched();
+      return;
+    }
 
-      this.carService.addCar(newCar).subscribe({
-        next: (response) => {
-          console.log('Car added successfully:', response);
-          this.router.navigate(['/cars']); 
-        },
-        error: (error) => {
-          console.error('Error adding car:', error);
-                }
-      });
-    
-    //route back to car list page
-    this.router.navigate(['/cars']); 
+    const { make, model, year } = this.carForm.getRawValue();
+    const car: CreateCarDto = {
+      make,
+      model,
+      ...(year === null ? {} : { year }),
+    };
+
+    this.saving.set(true);
+    this.carService.addCar(car).subscribe({
+      next: () => {
+        this.saving.set(false);
+        void this.router.navigate(['/cars']);
+      },
+      error: (error: Error) => {
+        this.saveError.set(error.message);
+        this.saving.set(false);
+      },
+    });
   }
 }

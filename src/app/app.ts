@@ -4,7 +4,7 @@ import { CarList } from './features/cars/pages/car-list/car-list';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CarList],
+  imports: [RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
